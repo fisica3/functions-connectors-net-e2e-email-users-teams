@@ -43,22 +43,25 @@ var host = new HostBuilder()
 
         services.AddSingleton<TokenCredential>(credential);
 
-        services.AddSingleton(sp => new TeamsClient(
-            new Uri(RequireSetting("TEAMS_CONNECTION_RUNTIME_URL")),
-            sp.GetRequiredService<TokenCredential>()));
+        services.AddSingleton(sp => {
+            var runtimeUrl = RequireSetting("TEAMS_CONNECTION_RUNTIME_URL");
+            return new TeamsClient(new Uri(runtimeUrl), sp.GetRequiredService<TokenCredential>());
+        });
 
         // Office 365 client — used both for sender-history enrichment (GetEmailsAsync)
         // and to flag the source email (FlagAsync) once we decide it's important.
         // Same connection runtime URL the trigger uses; just consumed as a client too.
-        services.AddSingleton(sp => new Office365Client(
-            new Uri(RequireSetting("OFFICE365_CONNECTION_RUNTIME_URL")),
-            sp.GetRequiredService<TokenCredential>()));
+        services.AddSingleton(sp => {
+            var runtimeUrl = RequireSetting("OFFICE365_CONNECTION_RUNTIME_URL");
+            return new Office365Client(new Uri(runtimeUrl), sp.GetRequiredService<TokenCredential>());
+        });
 
         // Office 365 Users client — used to look up the sender's M365 profile
         // (UserProfileAsync + ManagerAsync) for IN-ORG badging and card enrichment.
-        services.AddSingleton(sp => new Office365UsersClient(
-            new Uri(RequireSetting("OFFICE365USERS_CONNECTION_RUNTIME_URL")),
-            sp.GetRequiredService<TokenCredential>()));
+        services.AddSingleton(sp => {
+            var runtimeUrl = RequireSetting("OFFICE365USERS_CONNECTION_RUNTIME_URL");
+            return new Office365UsersClient(new Uri(runtimeUrl), sp.GetRequiredService<TokenCredential>());
+        });
 
         services.AddSingleton<ImportanceClassifier>();
     })
